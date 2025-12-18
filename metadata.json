@@ -1,0 +1,8 @@
+{
+  "name": "Psyllium Trick - Tu Camino Saludable",
+  "description": "Una aplicación de bienestar personalizada para mujeres, centrada en el método del psyllium y el acompañamiento nutricional con IA.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
