@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, User, Loader2 } from 'lucide-react';
+import { X, Send, Loader2 } from 'lucide-react';
 import { ChatMessage, UserProfile } from '../types';
 import { getNutriaResponse } from '../geminiService';
 
@@ -31,22 +30,35 @@ const NutriaChat: React.FC<Props> = ({ onClose, profile }) => {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsTyping(true);
 
-    const botFullResponse = await getNutriaResponse(userMsg, profile);
-    setIsTyping(false);
+    try {
+      const botFullResponse = await getNutriaResponse(userMsg, profile);
 
-    // Split response into chunks (by double newline or sentence ends if very long)
-    const chunks = botFullResponse
-      .split(/\n\n|(?<=[.!?])\s+(?=[A-Z¡¿])/)
-      .filter(c => c.trim().length > 0);
+      // Split response into chunks (by double newline or sentence ends if very long)
+      const chunks = botFullResponse
+        .split(/\n\n|(?<=[.!?])\s+(?=[A-Z¡¿])/)
+        .filter(c => c.trim().length > 0);
 
-    // Deliver chunks with 3s delay
-    for (let i = 0; i < chunks.length; i++) {
-      if (i > 0) {
-        setIsTyping(true);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setIsTyping(false);
+      setIsTyping(false);
+
+      // Deliver chunks with 3s delay
+      for (let i = 0; i < chunks.length; i++) {
+        if (i > 0) {
+          setIsTyping(true);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          setIsTyping(false);
+        }
+        setMessages(prev => [...prev, { role: 'model', text: chunks[i] }]);
       }
-      setMessages(prev => [...prev, { role: 'model', text: chunks[i] }]);
+    } catch (err: any) {
+      setIsTyping(false);
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'model',
+          text: 'Ops… hubo un problema para generar mi respuesta. Intenta de nuevo en unos segundos.'
+        }
+      ]);
+      console.error('NutriaChat error:', err?.message || err);
     }
   };
 
@@ -73,8 +85,8 @@ const NutriaChat: React.FC<Props> = ({ onClose, profile }) => {
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-3xl text-sm leading-relaxed shadow-sm ${
-              msg.role === 'user' 
-                ? 'bg-[#E8A2AF] text-white rounded-tr-none' 
+              msg.role === 'user'
+                ? 'bg-[#E8A2AF] text-white rounded-tr-none'
                 : 'bg-white text-slate-700 border border-pink-50 rounded-tl-none'
             }`}>
               {msg.text}
@@ -94,15 +106,15 @@ const NutriaChat: React.FC<Props> = ({ onClose, profile }) => {
       {/* Input */}
       <div className="p-4 bg-white border-t border-pink-50 shrink-0">
         <div className="flex items-center gap-2">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Escribe tu duda nutricional..."
             className="flex-1 py-4 px-5 bg-slate-50 rounded-2xl text-sm outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-[#E8A2AF] transition-all"
           />
-          <button 
+          <button
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
             className="p-4 bg-[#E8A2AF] text-white rounded-2xl shadow-lg active:scale-90 transition-transform disabled:opacity-30"
