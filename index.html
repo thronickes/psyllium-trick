@@ -46,8 +46,8 @@
 </script>
 </head>
 <body class="bg-[#FDF8F5] text-slate-800">
-    <div style="background: red; color: white; text-align: center; padding: 10px; position: fixed; top: 0; width: 100%; z-index: 9999;">
-        O HTML CARREGOU COM SUCESSO!
+    <div id="test-banner" style="background: red; color: white; text-align: center; padding: 5px; position: fixed; top: 0; width: 100%; z-index: 9999;">
+        VERIFICAÇÃO: HTML CARREGADO
     </div>
 
     <div id="root"></div>
@@ -55,14 +55,18 @@
     <script type="module" src="/index.tsx"></script>
 
     <script>
-    /* O Service Worker está desativado para evitar erros de cache 
-       enquanto corrigimos a tela branca.
-    */
-    /* if ('serviceWorker' in navigator) {
+    /* O código do Service Worker permanece comentado para evitar cache de tela branca */
+    /*
+    if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(reg => console.log('SW OK')).catch(err => console.log('SW Error'));
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registered');
+        }).catch(err => {
+          console.log('SW registration failed');
+        });
       });
-    } */
+    }
+    */
     </script>
 </body>
 </html>
