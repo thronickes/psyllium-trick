@@ -1,10 +1,8 @@
+
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { UserProfile } from "./types";
 
-// Alteração Crítica: Vite usa import.meta.env e exige o prefixo VITE_
-const ai = new GoogleGenAI({ 
-  apiKey: import.meta.env.VITE_API_KEY || "" 
-});
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getNutriaResponse = async (userMessage: string, profile: UserProfile | null) => {
   const systemInstruction = `
@@ -22,7 +20,7 @@ export const getNutriaResponse = async (userMessage: string, profile: UserProfil
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash', // Recomendado: use o nome do modelo estável
+      model: 'gemini-3-flash-preview',
       contents: userMessage,
       config: {
         systemInstruction,
@@ -73,7 +71,7 @@ export const generatePersonalizedRecipe = async (profile: UserProfile, phase: nu
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: "Nútria, gere meu plano de hoje agora mesmo!",
       config: {
         systemInstruction,
@@ -122,7 +120,7 @@ export const analyzePlate = async (base64Image: string, profile: UserProfile) =>
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: { parts: [imagePart, textPart] },
       config: {
         systemInstruction,
